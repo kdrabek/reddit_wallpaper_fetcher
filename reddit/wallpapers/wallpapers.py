@@ -1,9 +1,14 @@
-import requests
+import logging
 import os
 
 import click
 from PIL import Image
 from praw import Reddit
+import requests
+
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger('wallpapers_fetcher')
 
 
 def prepare_filename(url):
@@ -22,17 +27,21 @@ def prepare_image_download_url(url):
 def download(url):
     try:
         response = requests.get(url, stream=True)
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        log.error(
+            'Error occurred when downloading {0}, message: {1}'.format(
+                url, e.message)
+        )
         raise
     else:
-        print "Downloaded: {}".format(url)
+        log.info('Downloaded: {0}'.format(url))
         return response.raw
 
 
 def get_reddit_submissions(subreddit='earthporn'):
     reddit = Reddit(user_agent='earthporn_wallpapers_downloader')
     submissions = reddit.get_subreddit(subreddit).get_top_from_week()
-    print 'Fetching submissions from "{0}"'.format(subreddit)
+    log.info('Fetching submissions from "{0}"'.format(subreddit))
     return submissions
 
 
@@ -57,10 +66,10 @@ def download_wallpapers(subreddit, width, height):
             if proper_dimensions(width, height, img):
                 img.save(prepare_filename(image_url), "JPEG")
             else:
-                print "Skipping %s, reason: too small" % image_url
+                log.info("Skipping {}, reason: too small".format(image_url))
         else:
-            print "Skipping {0}".format(submission.url)
-    print "Finished downloading images"
+            log.info("Skipping {0}".format(submission.url))
+    log.info("Finished downloading images")
 
 
 if __name__ == '__main__':

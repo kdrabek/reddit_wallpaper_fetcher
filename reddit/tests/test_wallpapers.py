@@ -83,7 +83,7 @@ def test_get_reddit_submissions(mock_reddit):
 @patch('wallpapers.wallpapers.prepare_image_download_url')
 @patch('wallpapers.wallpapers.get_reddit_submissions')
 def test_download_wallpapers(
-        mock_get_submissions, mock_prepare_download_url, mock_download, 
+    mock_get_submissions, mock_prepare_download_url, mock_download,
         mock_image, mock_proper_dimensions, mock_prepare_filename
 ):
     mock_get_submissions.return_value = [sentinel]
