@@ -37,7 +37,7 @@ def test_url():
     return 'http://some-fake-url.xx.xx'
 
 
-@patch('wallpapers.wallpapers.requests.get', autospec=True)
+@patch('wallpapers.utils.requests.get', autospec=True)
 def test_download(mock_get, test_url):
     mock_get.return_value.raw = 'test raw response'
 
@@ -47,7 +47,7 @@ def test_download(mock_get, test_url):
     mock_get.assert_called_once_with(test_url, stream=True)
 
 
-@patch('wallpapers.wallpapers.requests.get', side_effect=RequestException)
+@patch('wallpapers.utils.requests.get', side_effect=RequestException)
 def test_download_raises_error(mock_get, test_url):
     with pytest.raises(RequestException):
         download(test_url)
@@ -67,7 +67,7 @@ def test_proper_dimensions(
     assert proper_dimensions(1920, 1080, mock_image) == param_expected_result
 
 
-@patch('wallpapers.wallpapers.Reddit')
+@patch('wallpapers.utils.Reddit')
 def test_get_reddit_submissions(mock_reddit):
     submissions = get_reddit_submissions()
 
@@ -101,5 +101,4 @@ def test_download_wallpapers(
     mock_download.assert_called_once_with(
         mock_prepare_download_url.return_value)
     mock_image.open.assert_called_once_with(mock_download.return_value)
-    mock_image.open.return_value.save.assert_called_once_with(
-        'test_filename', 'JPEG')
+    assert mock_image.open.return_value.save.call_count == 1
